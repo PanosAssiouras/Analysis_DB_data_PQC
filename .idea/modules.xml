@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/Analysis_DB_data_PQC.iml" filepath="$PROJECT_DIR$/.idea/Analysis_DB_data_PQC.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../DoubleModule_14_11_23/.idea/DoubleModule_14_11_23.iml" filepath="$PROJECT_DIR$/../DoubleModule_14_11_23/.idea/DoubleModule_14_11_23.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Openai/.idea/Openai.iml" filepath="$PROJECT_DIR$/../Openai/.idea/Openai.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../P-stop_inhomogeneity/.idea/P-stop_inhomogeneity.iml" filepath="$PROJECT_DIR$/../P-stop_inhomogeneity/.idea/P-stop_inhomogeneity.iml" />
+      <module fileurl="file://$USER_HOME$/TestBeamAnalysis/.idea/TestBeamAnalysis.iml" filepath="$USER_HOME$/TestBeamAnalysis/.idea/TestBeamAnalysis.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Tracker_Sensor_DB_Material/.idea/Tracker_Sensor_DB_Material.iml" filepath="$PROJECT_DIR$/../Tracker_Sensor_DB_Material/.idea/Tracker_Sensor_DB_Material.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../bar_graphs/.idea/bar_graphs.iml" filepath="$PROJECT_DIR$/../bar_graphs/.idea/bar_graphs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../python_scripts2/.idea/python_scripts2.iml" filepath="$PROJECT_DIR$/../python_scripts2/.idea/python_scripts2.iml" />
+    </modules>
+  </component>
+</project>

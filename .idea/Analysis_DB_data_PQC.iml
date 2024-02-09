@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PYTHON_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$" />
+    <orderEntry type="jdk" jdkName="Python 3.10" jdkType="Python SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="Tracker_Sensor_DB_Material" />
+    <orderEntry type="module" module-name="bar_graphs" />
+    <orderEntry type="module" module-name="python_scripts2" />
+    <orderEntry type="module" module-name="Openai" />
+    <orderEntry type="module" module-name="TestBeamAnalysis" />
+    <orderEntry type="module" module-name="P-stop_inhomogeneity" />
+    <orderEntry type="module" module-name="DoubleModule_14_11_23" />
+  </component>
+</module>
