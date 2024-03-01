@@ -5,8 +5,8 @@ import pandas as pd
 from scipy import stats
 
 pd.set_option("display.max_columns", None)
-parameters = ["I600_PAMPR", "RHO_KOHMCM", "VD_V", "CMIN_PFRD", "NA", "D_UM"]
-search_limits = [[-1000, 1000], [0, 8.0], [100, 600], [0, 10], [0, 20], [0, 500]]
+parameters = ['I600_PAMPR', "VI600_NAMPRMM3", "RHO_KOHMCM", "VD_V", "CMIN_PFRD", "NA", "D_UM"]
+search_limits = [[-100000, 100000], [-50.0, 50.0], [0, 20.0], [100, 1000], [0, 50], [0, 50], [0, 1000]]
 measurement = "DIODE_HALF"
 flute = "PQC3"
 #search_lower_limit = 0.0
@@ -19,7 +19,13 @@ database_data_path = os.path.join(path, '../../merged_with_metadata.csv')
 #----read and sort data from file exclude nan values ---------------------------------------------------------#
 param_number=0
 for parameter in parameters:
+    print(parameter)
     data = pd.read_csv(database_data_path, sep=",", skiprows=0)
+    # Assuming df is your DataFrame and column_name is the column you want to check for duplicates
+    data.drop_duplicates(subset=["FILE_NAME"], inplace=True)
+    # Reset the index if needed
+    data.reset_index(drop=True, inplace=True)
+    print(parameter, data[parameter].count())
     data = data[data[parameter].notna()]
     data = data.dropna(axis=1, how="all")
     data = data.loc[data[parameter] != 0]
@@ -48,15 +54,18 @@ for parameter in parameters:
     data.insert(1, "Type", sensor_types, True)  # type inserted to table in separate column
     data.insert(2, "Orientation", orientations, True)  # orientation West or East inserted to table in separate column
     data = data.replace('2-S', '2S')
-    #data['VFB_V']= -1.0*data['VFB_V'].abs()
-    #print(data['NA'])
-    #data['VD_V']= data['VD_V'].abs()
+    if parameter=='I600_PAMPR':
+        column_data = data[parameter]
+        data.columns = data.columns.str.strip()
+        data[parameter] = column_data*1.0E-3
+    else:
+        print("Column 'I600_PAMPR' does not exist in the DataFrame 'data'.")
     data.to_csv(r'data.csv', index=False)
     # ----------------------------------------------------------------------------------------------#
     # ------- Filter outliers-----------------------------------------------------------------------#
     z_scores = stats.zscore(data[parameter])  # calculate z-scores of `df`
     abs_z_scores = np.abs(z_scores)
-    filtered_entries = (abs_z_scores < 50)
+    filtered_entries = (abs_z_scores < 100)
     data_filtered = data[filtered_entries]
     # ----------------------------------------------------------------------------------------------#
     # ------ reduce data_merged --------------------------------------------------------------------#
@@ -68,10 +77,12 @@ for parameter in parameters:
 
     data_reduced.to_csv(parameter + '_all.csv', index=False)
     data.to_csv(r'data_reduced.csv', index=False)
+    data_reduced.to_csv(parameter + '_all.csv', index=False)
+    data.to_csv(r'data_reduced.csv', index=False)
     # ---------------------- calculate averages and stadard deviation--------------------------------#
 
-    data_merged_reduced_mean = data_reduced.groupby(['batch_number'])[parameter].mean().reset_index(name="Average")
-    data_merged_reduced_std = data_reduced.groupby(['batch_number'])[parameter].std().reset_index(name="std")
+    data_merged_reduced_mean = data_reduced.groupby(['batch_number', 'Type'])[parameter].mean().reset_index(name="Average")
+    data_merged_reduced_std = data_reduced.groupby(['batch_number', 'Type'])[parameter].std().reset_index(name="std")
     data_reduced2 = pd.merge(data_merged_reduced_mean, data_merged_reduced_std, how='inner')
     # data_merged2.rename(columns={'batch_number': 'Name'}, inplace=True)
 

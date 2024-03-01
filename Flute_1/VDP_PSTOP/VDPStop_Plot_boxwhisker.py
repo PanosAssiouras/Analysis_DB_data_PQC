@@ -18,9 +18,12 @@ path=pathlib.Path().absolute()
 
 parameter = "RSH_OHMSQR"
 measurement = "VDP-Pstop"
-axis_label = "Sheet resistance [$\Omega$/sq]"
-lower_limit = 10000
-upper_limit = 45000
+axis_label = "Sheet resistance (k$\Omega$/sq)"
+lower_limit = 10
+upper_limit = 45
+
+minor_tick=2.5
+major_tick=5.0
 
 # 2.) Define fit function.
 def fit_function(x, A, B, mu, sigma):
@@ -39,19 +42,42 @@ column_names = Flute_results.columns.values.tolist()
 
 # ---------- Declare figure and axis parameters----------------------------------------------------#
 fig, ax2 = plt.subplots()
-xtick_labels = [name for name in Flute_average['batch_number']]
-xtick_labels = xtick_labels[:(len(xtick_labels)-30)]
+##xtick_labels = [name for name in Flute_average['batch_number']]
+#xtick_labels = xtick_labels[:(len(xtick_labels))]
+#xtick_labels = xtick_labels[::4]
+pss_count=0
+psp_count=0
+total_psp=0
+xtick_labels=[]
+# Iterate over the DataFrame
+for index, row in Flute_average.iterrows():
+    if (row['Type']=="2S") | (row['Type']=="PSS"):
+        if pss_count==3:
+            xtick_labels.append(row['batch_number'])
+            pss_count=0
+        else:
+            pss_count+=1
+    elif row['Type']=="PSP":
+        if psp_count==1:
+            xtick_labels.append(row['batch_number'])
+            psp_count=0
+        else:
+            psp_count+=1
+        total_psp+=1
+print(total_psp)
+
+
+
 ax2.set_xticks(np.arange(len(xtick_labels)))
-ax2.yaxis.set_minor_locator(MultipleLocator(2500))
-ax2.yaxis.set_major_locator(MultipleLocator(5000))
-ax2.tick_params(axis='x', which='major', labelsize=6, length=15)
-ax2.tick_params(axis='x', which='minor', labelsize=6, length=5)
-ax2.tick_params(axis='y', which='major', labelsize=20, length=15)
-ax2.tick_params(axis='y', which='minor', labelsize=20, length=5)
+ax2.yaxis.set_minor_locator(MultipleLocator(minor_tick))
+ax2.yaxis.set_major_locator(MultipleLocator(major_tick))
+ax2.tick_params(axis='x', which='major', labelsize=12, length=15)
+ax2.tick_params(axis='x', which='minor', labelsize=12, length=5)
+ax2.tick_params(axis='y', which='major', labelsize=18, length=15)
+ax2.tick_params(axis='y', which='minor', labelsize=18, length=5)
 ax2.set_xticklabels(xtick_labels, rotation=90)  # set axis rotation
 ax2.set_xlim(lower_limit, len(xtick_labels))
-ax2.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
-ax2.yaxis.get_offset_text().set_fontsize(20)
+ax2.yaxis.get_offset_text().set_fontsize(18)
 # ----------------------------------------------------------------------------------------------#
 
 
@@ -67,17 +93,6 @@ errors_of_PSp = []
 values_of_2S_and_PSs = []
 values_of_PSp_batches = []
 
-#data = data.loc[(data[parameter] >= search_limits[param_number][0])
-#                & (data[parameter] <= search_limits[param_number][1])]
-
-for batch in xtick_labels:
-    print(batch)
-    values_of_2S = data.loc[ (data['Type']=="2-S") & (data['batch_number']==batch)][parameter]
-    print(type(values_of_2S))
-    print(values_of_2S)
-
-
-
 # Set Seaborn style
 #ax2 = sns.set(style="whitegrid")
 median_color = 'yellow'
@@ -85,28 +100,6 @@ median_color = 'yellow'
 mcolors.TABLEAU_COLORS
 type_colors = {'PSS': "#2ecc71", '2S': "#3498db", 'PSP': '#FF4040'}  # Add more types and colors as needed
 ax2.set_prop_cycle(color=['red','orange','yellow','green','blue','purple'])
-
-
-# Map 'Type' to RGBA values
-#data['flier_color'] = data['Type'].map(type_colors).map(mcolors.to_rgba)
-
-
-# Create a bar and whisker plot using Seaborn with custom colors for each type
-#plt.figure(figsize=(12, 8))
-#ax2 = sns.boxplot(x='batch_number', y=parameter, hue='Type', data=data,
-#                  palette=type_colors, medianprops=dict(color=median_color),
-#                  flierprops=dict(markerfacecolor='gray', markersize=5, linestyle='none'), whis=(0, 100))
-#ax2 = sns.boxplot(x='batch_number', y='S0_CMSEC', hue='Type', data=data.loc[ (data['Type']=="PSS")],
-#                  palette=type_colors, medianprops=dict(color=median_color), flierprops=dict(markerfacecolor='red',
-#                                                                                             markersize=5, linestyle='none'))
-#ax2 = sns.boxplot(x='batch_number', y='S0_CMSEC', hue='Type', data=data.loc[ (data['Type']=="PSP")],
-#                  palette=type_colors, medianprops=dict(color=median_color), flierprops=dict(markerfacecolor='red',
-#                                                                                             markersize=5, linestyle='none'))
-#plt.title('Batch Number vs. S0_CMSEC (Colored by Type)')
-#plt.xlabel('Batch Number')
-#plt.ylabel('S0_CMSEC')
-#plt.legend(title='Type', bbox_to_anchor=(1.05, 1), loc='upper left')
-#plt.show()
 
 for batch in xtick_labels:
     #type = data.loc[(data['batch_number']==batch)]['Type']
@@ -127,13 +120,25 @@ for batch in xtick_labels:
 left, bottom, width, height = [0.20, 0.68, 0.25, 0.25]
 ax3 = fig.add_axes([left, bottom, width, height])
 
-values_of_2S_and_PSs = Flute_results[(Flute_results['Type'] == "PSS") | (Flute_results['Type'] == "2S")]
-values_of_2S_and_PSs = values_of_2S_and_PSs[parameter]
-values_of_2S_and_PSs_new = [value for value in values_of_2S_and_PSs if math.isnan(value) == False]
+values_of_PSp_batches_new = []
+values_of_2S_and_PSs_new = []
 
-values_of_PSp_batches = Flute_results[Flute_results['Type'] == "PSP"]
-values_of_PSp_batches = values_of_PSp_batches[parameter]
-values_of_PSp_batches_new = [value for value in values_of_PSp_batches if math.isnan(value) == False]
+for batch_number in xtick_labels:
+    values_of_PSp_batches = Flute_results[(Flute_results['Type'] == "PSP") & (Flute_results['batch_number'] == batch_number)]
+    values_of_PSp_batches = values_of_PSp_batches[parameter]
+    for value in values_of_PSp_batches:
+        values_of_PSp_batches_new.append(value)
+
+print(values_of_PSp_batches_new)
+
+for batch_number in xtick_labels:
+    values_of_2S_and_PSs = Flute_results[(Flute_results['Type'] == "PSS") | (Flute_results['Type'] == "2S") &
+                                         (Flute_results['batch_number'] == batch_number)]
+    values_of_2S_and_PSs = values_of_2S_and_PSs[parameter]
+    for value in values_of_2S_and_PSs:
+        values_of_2S_and_PSs_new.append(value)
+
+
 
 # ----------------------------------------------------------------------------------------------------------------#
 # ---------- Make histogram inside the plot ----------------------------------------------------#
@@ -165,19 +170,22 @@ xspace = np.linspace(lower_limit, upper_limit, 10000)
 # ----------------------------------------------------------------------------------------------#
 # ----------------------------------------------------------------------------------------------#
 ax3.set_xlim(left=lower_limit, right=upper_limit)
-ax3.set_ylim(bottom=0.0)
+ax3.set_ylim(bottom=1E+0)
 ax3.set_ylabel("Number of wafers", fontsize=18)
 ax3.set_xlabel(axis_label, fontsize=18)
+ax3.set_yscale('log')
+
 # set parameters for tick labels ##############################################
-ax3.tick_params(axis='both', which='major', labelsize=15, length=10)
-ax3.tick_params(axis='both', which='minor', labelsize=15, length=5)
+ax3.tick_params(axis='both', which='major', labelsize=14, length=10)
+ax3.tick_params(axis='both', which='minor', labelsize=14, length=5)
 ax3.legend(loc='best', prop={'size': 12})
-ax3.xaxis.set_minor_locator(MultipleLocator(2500))
-ax3.xaxis.set_major_locator(MultipleLocator(5000))
-ax3.yaxis.set_minor_locator(MultipleLocator(250))
-ax3.yaxis.set_major_locator(MultipleLocator(500))
-ax3.ticklabel_format(axis="x", style="sci", scilimits=(0, 0))
+ax3.xaxis.set_minor_locator(MultipleLocator(minor_tick))
+ax3.xaxis.set_major_locator(MultipleLocator(major_tick))
+#ax3.yaxis.set_minor_locator(MultipleLocator(100))
+#ax3.yaxis.set_major_locator(MultipleLocator(200))
 ax3.xaxis.get_offset_text().set_fontsize(15)
+# Set log scale on y-axis for ax3
+
 # ----------------------------------------------------------------------------------------------#
 # ---------- Straight line at mu and Spec limit ----------------------------------------------#
 xmin, x_max = ax2.get_xlim()
@@ -212,11 +220,14 @@ ax2.legend(by_label.values(), by_label.keys(), loc='upper right', prop={'size': 
 # ----------------------------------------------------------------------------------------------#
 # ----------------------------------------------------------------------------------------------#
 #plt.savefig('.png', bbox_inches='tight')
+root.attributes('-fullscreen', True)  # Span across all screens
+root.update_idletasks()  # Update the window to get accurate dimensions
+
 width_screen = root.winfo_screenwidth()
 height_screen = root.winfo_screenheight()
 fig.set_size_inches(width_screen / 100, height_screen / 100)
 fig.tight_layout()
-fig.savefig("Bar_chart" + "_" + measurement +"_"+parameter+ ".pdf", dpi=100, bbox_inches='tight')
+fig.savefig("Bar_chart" + "_" + measurement +"_"+parameter+ ".pdf", dpi=200, bbox_inches='tight')
 plt.show()
 print("End")
 # ----------------------------------------------------------------------------------------------#

@@ -6,7 +6,7 @@ from scipy import stats
 
 pd.set_option("display.max_columns", None)
 parameters = ["VFB_V", "CACC_PFRD", "NOX", "TOX_NM"]
-search_limits = [[-15, 15.0], [0, 500.0], [1E+10, 1E+12], [500, 800]]
+search_limits = [[-15, 15.0], [-2000, 2000.0], [1E+10, 2E+12], [-5000, 5000]]
 measurement = "MOS_QUARTER"
 flute = "PQC4"
 #search_lower_limit = 0.0
@@ -20,12 +20,17 @@ database_data_path = os.path.join(path, '../../merged_with_metadata.csv')
 param_number=0
 for parameter in parameters:
     data = pd.read_csv(database_data_path, sep=",", skiprows=0)
+    # Assuming df is your DataFrame and column_name is the column you want to check for duplicates
+    data.drop_duplicates(subset=["FILE_NAME"], inplace=True)
+    # Reset the index if needed
+    data.reset_index(drop=True, inplace=True)
+    print(parameter, data[parameter].count())
     data = data[data[parameter].notna()]
     data = data.dropna(axis=1, how="all")
     data = data.loc[data[parameter] != 0]
     data = data.loc[(data[parameter] >= search_limits[param_number][0])
                     & (data[parameter] <= search_limits[param_number][1])]
-    # data.reset_index(drop=True, inplace=True)
+    data.reset_index(drop=True, inplace=True)
     data = data.drop(['PART_BARCODE', 'ID', 'KIND_OF_CONDITION_ID', 'CONDITION_DATA_SET_ID',
                       'KIND_OF_PART_ID', 'KIND_OF_CONDITION', 'KIND_OF_PART'], axis=1)
     data = data[(data['KIND_OF_HM_STRUCT_ID'] == measurement) | (data['KIND_OF_HM_STRUCT_ID'] == flute)]
@@ -54,7 +59,7 @@ for parameter in parameters:
     # ------- Filter outliers-----------------------------------------------------------------------#
     z_scores = stats.zscore(data[parameter])  # calculate z-scores of `df`
     abs_z_scores = np.abs(z_scores)
-    filtered_entries = (abs_z_scores < 30)
+    filtered_entries = (abs_z_scores < 100)
     data_filtered = data[filtered_entries]
     # ----------------------------------------------------------------------------------------------#
     # ------ reduce data_merged --------------------------------------------------------------------#
@@ -66,10 +71,12 @@ for parameter in parameters:
 
     data_reduced.to_csv(parameter + '_all.csv', index=False)
     data.to_csv(r'data_reduced.csv', index=False)
+    data_reduced.to_csv(parameter + '_all.csv', index=False)
+    data.to_csv(r'data_reduced.csv', index=False)
     # ---------------------- calculate averages and stadard deviation--------------------------------#
 
-    data_merged_reduced_mean = data_reduced.groupby(['batch_number'])[parameter].mean().reset_index(name="Average")
-    data_merged_reduced_std = data_reduced.groupby(['batch_number'])[parameter].std().reset_index(name="std")
+    data_merged_reduced_mean = data_reduced.groupby(['batch_number', 'Type'])[parameter].mean().reset_index(name="Average")
+    data_merged_reduced_std = data_reduced.groupby(['batch_number', 'Type'])[parameter].std().reset_index(name="std")
     data_reduced2 = pd.merge(data_merged_reduced_mean, data_merged_reduced_std, how='inner')
     # data_merged2.rename(columns={'batch_number': 'Name'}, inplace=True)
 

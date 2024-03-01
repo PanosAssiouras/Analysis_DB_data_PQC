@@ -6,13 +6,14 @@ from scipy import stats
 
 pd.set_option("display.max_columns", None)
 measurement = "FET"
+flute = "PQC1"
 parameters = ["VTH_V"]
 search_limits = [[-2.0, 6.0], [0.0, 15.0], [-10.0, 10.0], [-10.0, 10.0]]
 #search_lower_limit = 0.0
 #search_upper_limit = 15.0
 #----------------------------------------------------------------------------------------------#
 path = pathlib.Path().absolute()
-database_data_path = os.path.join(path, '../../merged_with_metadata.csv')
+database_data_path = os.path.join(path, '../merged_with_metadata.csv')
 #metadata_path = os.path.join(path, '../c8920.csv')
 # file_name = os.path.splitext('FET.txt')[0]
 #----read and sort data from file exclude nan values ---------------------------------------------------------#
@@ -28,11 +29,12 @@ for parameter in parameters:
     data = data.loc[data[parameter] != 0]
     data = data.loc[(data[parameter] >= search_limits[param_number][0])
                     & (data[parameter] <= search_limits[param_number][1])]
+    data[parameter] = data[parameter].abs()
     data.reset_index(drop=True, inplace=True)
     data = data.drop(['PART_BARCODE', 'ID', 'KIND_OF_CONDITION_ID', 'CONDITION_DATA_SET_ID',
                       'KIND_OF_PART_ID', 'KIND_OF_CONDITION', 'KIND_OF_PART'], axis=1)
-    data = data[(data['KIND_OF_HM_STRUCT_ID'] == "FET_2S")| (data['KIND_OF_HM_STRUCT_ID'] == "FET_PSS") | (data['KIND_OF_HM_STRUCT_ID'] == "FET_PSP")
-                | (data['KIND_OF_HM_STRUCT_ID'] == "PQC1")]
+    data = data[(data['KIND_OF_HM_FLUTE_ID'] == flute)]
+    data = data[(data['KIND_OF_HM_STRUCT_ID'] == "FET_2S")| (data['KIND_OF_HM_STRUCT_ID'] == "FET_PSS") | (data['KIND_OF_HM_STRUCT_ID'] == "FET_PSP")]
     data.reset_index(drop=True, inplace=True)
 
     # ----------------------------------------------------------------------------------------------#

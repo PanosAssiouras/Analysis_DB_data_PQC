@@ -33,8 +33,12 @@ for parameter in parameters:
     data.reset_index(drop=True, inplace=True)
     data = data.drop(['PART_BARCODE', 'ID', 'KIND_OF_CONDITION_ID', 'CONDITION_DATA_SET_ID',
                       'KIND_OF_PART_ID', 'KIND_OF_CONDITION', 'KIND_OF_PART'], axis=1)
-    data = data[(data['KIND_OF_HM_STRUCT_ID'] == measurement) | (data['KIND_OF_HM_STRUCT_ID'] == flute) | (data['KIND_OF_HM_CONFIG_ID'] == "Standard")]
+    data = data[(data['KIND_OF_HM_FLUTE_ID'] == flute)]
+    data = data[(data['KIND_OF_HM_STRUCT_ID'] == measurement)]
+    data = data[(data['KIND_OF_HM_CONFIG_ID'] == "Standard")]
     data.reset_index(drop=True, inplace=True)
+    print(parameter, data[parameter].count())
+    print(data)
 
     # ----------------------------------------------------------------------------------------------#
     # ---------- take batch number and sensor type from the PART_NAME_LABEL ------------------------#

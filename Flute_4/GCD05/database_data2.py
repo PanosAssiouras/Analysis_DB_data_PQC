@@ -6,9 +6,9 @@ from scipy import stats
 
 pd.set_option("display.max_columns", None)
 parameters = ["S0_CMSEC", "ISURF_PAMPR", "VFB_ACC_V", "VFB_INV_V"]
-search_limits = [[0.0, 3.0], [0.0, 15.0], [-10.0, 10.0], [-10.0, 10.0]]
-measurement = "GCD"
-flute = "PQC2"
+search_limits = [[0.0, 10.0], [0.0, 15.0], [-10.0, 10.0], [-10.0, 10.0]]
+measurement = "GCD05"
+flute = "PQC4"
 #search_lower_limit = 0.0
 #search_lower_limit = 0.0
 #search_upper_limit = 15.0

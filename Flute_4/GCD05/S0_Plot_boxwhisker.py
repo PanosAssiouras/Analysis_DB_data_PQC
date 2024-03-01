@@ -17,8 +17,8 @@ path=pathlib.Path().absolute()
 #file_names = filedialog.askopenfilenames(initialdir=path, parent=root, title='Choose a file')
 
 parameter = "S0_CMSEC"
-measurement = "GCD"
-axis_label = "Surface velocity [cm/s$^{2}$]"
+measurement = "GCD05"
+axis_label = "Surface velocity (cm/s)"
 lower_limit = 0.0
 upper_limit = 4.0
 

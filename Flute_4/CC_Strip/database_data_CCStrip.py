@@ -20,6 +20,10 @@ database_data_path = os.path.join(path, '../../merged_with_metadata.csv')
 param_number=0
 for parameter in parameters:
     data = pd.read_csv(database_data_path, sep=",", skiprows=0)
+    # Assuming df is your DataFrame and column_name is the column you want to check for duplicates
+    data.drop_duplicates(subset=["FILE_NAME"], inplace=True)
+    # Reset the index if needed
+    data.reset_index(drop=True, inplace=True)
     data = data[data[parameter].notna()]
     data = data.dropna(axis=1, how="all")
     data = data.loc[data[parameter] != 0]
@@ -68,8 +72,8 @@ for parameter in parameters:
     data.to_csv(r'data_reduced.csv', index=False)
     # ---------------------- calculate averages and stadard deviation--------------------------------#
 
-    data_merged_reduced_mean = data_reduced.groupby(['batch_number'])[parameter].mean().reset_index(name="Average")
-    data_merged_reduced_std = data_reduced.groupby(['batch_number'])[parameter].std().reset_index(name="std")
+    data_merged_reduced_mean = data_reduced.groupby(['batch_number', 'Type'])[parameter].mean().reset_index(name="Average")
+    data_merged_reduced_std = data_reduced.groupby(['batch_number', 'Type'])[parameter].std().reset_index(name="std")
     data_reduced2 = pd.merge(data_merged_reduced_mean, data_merged_reduced_std, how='inner')
     # data_merged2.rename(columns={'batch_number': 'Name'}, inplace=True)
 

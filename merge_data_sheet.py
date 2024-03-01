@@ -17,8 +17,9 @@ metadata = pd.read_csv(metadata_path, sep=",", skiprows=0)
 
 print(IV_data)
 
-
+print(TC_data['V_TH'])
 data_merged = pd.concat([IV_data, CV_data, TC_data])
+print(data_merged['V_TH'])
 data_merged = data_merged.sort_values(by=['PART_ID', 'CONDITION_DATA_SET_ID'], ascending=True).reset_index(drop=True)
 data_merged.to_csv('merged.csv', index=False)
 
@@ -51,4 +52,5 @@ for index in range(len(data_merged2)):
 data_merged2.insert(len(data_merged2.columns), "Location", locations, True)  # insert location into metadata file
 
 data_merged2.to_csv('merged_with_metadata.csv', index=False)
+
 
